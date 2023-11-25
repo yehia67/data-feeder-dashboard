@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Data Feeder Dashboard
 
-## Getting Started
+Data Feeder is an oracle deployed on Topos, a fully interoperable blockchain by zero-knowledge proofs. The data feeder will help you to fetch actual world data for your smart contract.Feel free to check our [notion page](https://lumbar-diplodocus-5cf.notion.site/Data-Feeder-10698af3252343f6b6975ac2f359afa7)
 
-First, run the development server:
+### Data Feeder Repositories
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+[Smart Contract Repository](https://github.com/yehia67/data-feeder-sm)
+
+[Backend Repository](https://github.com/yehia67/data-feeder-oracle)
+
+Frontend Repository(this one)
+
+### Run & Install
+
+Create `.env` file from `.env.example` and set all variable values
+
+```
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Install packages using yarn
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+yarn
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+For Dev mode run
 
-## Learn More
+```
+yarn dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+For production mode run
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+yarn build && yarn start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Learn More About Oracle
 
-## Deploy on Vercel
+![Oracle Basics](./oracle-basics.png)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To learn more check [Ethereum Foundation Blog](https://ethereum.org/en/developers/docs/oracles)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Learn More About Topos
+
+Website: https://toposware.com
+
+Technical Documentation: https://docs.topos.technology
+
+Medium: https://toposware.medium.com
+
+Whitepaper: [Topos: A Secure, Trustless, and Decentralized Interoperability Protocol](https://arxiv.org/pdf/2206.03481.pdf)
+
+## License
+
+This project is released under the terms specified in the [LICENSE](LICENSE) file.
