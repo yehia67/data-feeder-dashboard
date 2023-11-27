@@ -1,0 +1,94 @@
+import "@rainbow-me/rainbowkit/styles.css";
+import type { AppProps } from "next/app";
+import {
+  RainbowKitProvider,
+  getDefaultWallets,
+  connectorsForWallets,
+  Locale,
+} from "@rainbow-me/rainbowkit";
+import {
+  argentWallet,
+  trustWallet,
+  ledgerWallet,
+} from "@rainbow-me/rainbowkit/wallets";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
+import {
+  mainnet,
+  polygon,
+  optimism,
+  arbitrum,
+  base,
+  zora,
+  goerli,
+} from "wagmi/chains";
+import { publicProvider } from "wagmi/providers/public";
+import { useRouter } from "next/router";
+import { defineChain } from "viem";
+import { ChakraProvider } from "@chakra-ui/react";
+
+const toposChain = defineChain({
+  id: 2359,
+  network: "homestead",
+  name: "Topos",
+  nativeCurrency: { name: "Topos", symbol: "TOPOS", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.topos-subnet.testnet-1.topos.technology"],
+    },
+    public: {
+      http: ["https://rpc.topos-subnet.testnet-1.topos.technology"],
+    },
+  },
+  testnet: true,
+});
+
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [toposChain],
+  [publicProvider()]
+);
+
+const projectId = "Data Feeder Topos Oracle";
+
+const { wallets } = getDefaultWallets({
+  appName: projectId,
+  projectId,
+  chains,
+});
+
+const demoAppInfo = {
+  appName: projectId,
+};
+
+const connectors = connectorsForWallets([
+  ...wallets,
+  {
+    groupName: "Other",
+    wallets: [
+      argentWallet({ projectId, chains }),
+      trustWallet({ projectId, chains }),
+      ledgerWallet({ projectId, chains }),
+    ],
+  },
+]);
+
+const wagmiConfig = createConfig({
+  autoConnect: true,
+  connectors,
+  publicClient,
+  webSocketPublicClient,
+});
+
+function MyApp({ Component, pageProps }: AppProps) {
+  const { locale } = useRouter() as { locale: Locale };
+  return (
+    <WagmiConfig config={wagmiConfig}>
+      <RainbowKitProvider appInfo={demoAppInfo} chains={chains} locale={locale}>
+        <ChakraProvider>
+          <Component {...pageProps} />
+        </ChakraProvider>
+      </RainbowKitProvider>
+    </WagmiConfig>
+  );
+}
+
+export default MyApp;
