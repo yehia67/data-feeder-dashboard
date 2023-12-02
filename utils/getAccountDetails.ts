@@ -1,9 +1,8 @@
-import {
-  oracleFetcherContract,
-  oraclePokemonContract,
-  oraclePriceContract,
-} from "./contracts";
+import { OracleFetcherArtifacts } from "@/artifacts/OracleFetcher";
+import { OraclePokemonArtifacts } from "@/artifacts/OraclePokemon";
+import { OraclePriceArtifacts } from "@/artifacts/OraclePrice";
 import type { IApiKeyRow } from "@/interfaces";
+import { readContract } from "wagmi/actions";
 
 export const getAccountDetails = async (
   address: string
@@ -11,54 +10,76 @@ export const getAccountDetails = async (
   const apiRows: IApiKeyRow[] = [];
   const [oracleFetcherKey, oraclePriceKey, oraclePokemonKey] =
     await Promise.all([
-      oracleFetcherContract.getFunction("apiKeyByAddress").staticCall(address),
-      oraclePriceContract.getFunction("apiKeyByAddress").staticCall(address),
-      oraclePokemonContract.getFunction("apiKeyByAddress").staticCall(address),
+      readContract({
+        address: OracleFetcherArtifacts.address,
+        abi: OracleFetcherArtifacts.abis,
+        functionName: "apiKeyByAddress",
+      }) as Promise<number>,
+      readContract({
+        address: OraclePriceArtifacts.address,
+        abi: OraclePriceArtifacts.abis,
+        functionName: "apiKeyByAddress",
+      }) as Promise<number>,
+      readContract({
+        address: OraclePokemonArtifacts.address,
+        abi: OraclePokemonArtifacts.abis,
+        functionName: "apiKeyByAddress",
+      }) as Promise<number>,
     ]);
 
   const oracleFetchUsage =
     oracleFetcherKey !== 0
-      ? await oracleFetcherContract
-          .getFunction("apiKeyUsage")
-          .staticCall(oracleFetcherKey)
+      ? ((await readContract({
+          address: OracleFetcherArtifacts.address,
+          abi: OracleFetcherArtifacts.abis,
+          functionName: "apiKeyUsage",
+          args: [oracleFetcherKey],
+        })) as number)
       : 0;
+
   if (oracleFetcherKey.toString() !== "0") {
     apiRows.push({
-      id: oracleFetchUsage.toString(),
-      key: oracleFetcherKey.toString(),
-      usage: oracleFetchUsage.toString(),
+      id: oracleFetchUsage,
+      key: oracleFetcherKey,
+      usage: oracleFetchUsage,
       type: "OracleFetcher",
     });
   }
 
   const oraclePriceUsage =
     oraclePriceKey !== 0
-      ? await oraclePriceContract
-          .getFunction("apiKeyUsage")
-          .staticCall(oraclePriceKey)
+      ? ((await readContract({
+          address: OraclePriceArtifacts.address,
+          abi: OraclePriceArtifacts.abis,
+          functionName: "apiKeyUsage",
+          args: [oraclePriceKey],
+        })) as number)
       : 0;
 
   if (oraclePriceKey.toString() !== "0") {
     apiRows.push({
-      id: oraclePriceKey.toString(),
-      key: oraclePriceKey.toString(),
-      usage: oraclePriceUsage.toString(),
+      id: oraclePriceKey,
+      key: oraclePriceKey,
+      usage: oraclePriceUsage,
       type: "OraclePrice",
     });
   }
 
   const oraclePokemonUsage =
     oraclePokemonKey !== 0
-      ? await oraclePokemonContract
-          .getFunction("apiKeyUsage")
-          .staticCall(oraclePokemonKey)
+      ? ((await readContract({
+          address: OraclePokemonArtifacts.address,
+          abi: OraclePokemonArtifacts.abis,
+          functionName: "apiKeyUsage",
+          args: [oraclePokemonKey],
+        })) as number)
       : 0;
 
   if (oraclePokemonUsage.toString() !== "0") {
     apiRows.push({
-      id: oraclePokemonKey.toString(),
-      key: oraclePokemonKey.toString(),
-      usage: oraclePokemonUsage.toString(),
+      id: oraclePokemonKey,
+      key: oraclePokemonKey,
+      usage: oraclePokemonUsage,
       type: "OracleNFT",
     });
   }

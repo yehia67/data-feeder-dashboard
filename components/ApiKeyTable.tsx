@@ -16,19 +16,53 @@ import { getAccountDetails } from "@/utils";
 const ApiKeyTable = () => {
   // Sample data, replace this with your actual data
   const [apiKeys, setApiKeys] = React.useState<IApiKeyRow[]>([]);
-  const { address } = useAccount();
+  const [msg, setMsg] = React.useState<string>("Connecting..");
+
+  const { address, isReconnecting } = useAccount();
+
+  // Use a variable to store the message
+  let tableContent;
+
   React.useEffect(() => {
     const setApiInfo = async () => {
-      if (!address) return;
+      if (!address) {
+        setMsg("Please connect your wallet...");
+        return;
+      }
       const currentApiKeys = await getAccountDetails(address);
+      if (!currentApiKeys.length) {
+        setMsg("You are not subscribed to any oracle...");
+      }
       setApiKeys(currentApiKeys);
     };
     setApiInfo();
-  }, [address]); // Include any dependencies for your API key fetching logic
+  }, [address, isReconnecting]);
+
+  // Conditionally set the tableContent variable
+  if (apiKeys.length) {
+    tableContent = apiKeys.map((apiKey) => (
+      <Tr key={apiKey.id}>
+        <Td>{apiKey.key}</Td>
+        <Td>{apiKey.type}</Td>
+        <Td>{apiKey.usage}</Td>
+      </Tr>
+    ));
+  } else {
+    tableContent = (
+      <Tr>
+        <Td colSpan={3} textAlign="center">
+          {msg}
+        </Td>
+      </Tr>
+    );
+  }
+
   return (
-    <Container>
-      <Heading mb={4}>API Key Table</Heading>
-      <Table variant="simple">
+    <Container mt={8}>
+      <Heading mb={4} textAlign="center">
+        API Key Table
+      </Heading>
+      <Table variant="striped" colorScheme="teal">
         <Thead>
           <Tr>
             <Th>API Key</Th>
@@ -36,19 +70,7 @@ const ApiKeyTable = () => {
             <Th>Usage</Th>
           </Tr>
         </Thead>
-        <Tbody>
-          {apiKeys.length
-            ? apiKeys.map((apiKey) => (
-                <Tr key={apiKey.id}>
-                  <Td>{apiKey.key}</Td>
-                  <Td>{apiKey.type}</Td>
-                  <Td>{apiKey.usage}</Td>
-                </Tr>
-              ))
-            : address
-            ? "You are not subscribed to any oracle..."
-            : "Please connect your wallet..."}
-        </Tbody>
+        <Tbody>{tableContent}</Tbody>
       </Table>
     </Container>
   );
