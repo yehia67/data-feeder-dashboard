@@ -1,20 +1,35 @@
 import { OracleName } from "@/interfaces";
 import { formatEther } from "ethers";
-import { oracleFetcherContract, oraclePokemonContract, oraclePriceContract } from "./contracts";
+
+import { OracleFetcherArtifacts } from "@/artifacts/OracleFetcher";
+import { readContract } from "viem/actions";
+import { getPublicClient } from "wagmi/actions";
+import { BigNumberish } from "ethers/utils";
+import { OraclePriceArtifacts } from "@/artifacts/OraclePrice";
+import { OraclePokemonArtifacts } from "@/artifacts/OraclePokemon";
 
 export const getFees = async (oracleName: OracleName) => {
   if (oracleName === "OracleFetcher") {
-    return formatEther(
-      await oracleFetcherContract.getFunction("flatFee").staticCall()
-    );
+    const result = (await readContract(getPublicClient(), {
+      address: OracleFetcherArtifacts.address,
+      abi: OracleFetcherArtifacts.abis,
+      functionName: "flatFee",
+    })) as BigNumberish;
+    return formatEther(result);
   }
 
   if (oracleName === "OraclePrice") {
-    return formatEther(
-      await oraclePriceContract.getFunction("flatFee").staticCall()
-    );
+    const result = (await readContract(getPublicClient(), {
+      address: OraclePriceArtifacts.address,
+      abi: OraclePriceArtifacts.abis,
+      functionName: "flatFee",
+    })) as BigNumberish;
+    return formatEther(result);
   }
-  return formatEther(
-    await oraclePokemonContract.getFunction("flatFee").staticCall()
-  );
+  const result = (await readContract(getPublicClient(), {
+    address: OraclePokemonArtifacts.address,
+    abi: OraclePokemonArtifacts.abis,
+    functionName: "flatFee",
+  })) as BigNumberish;
+  return formatEther(result);
 };
