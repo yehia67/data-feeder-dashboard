@@ -1,8 +1,8 @@
 import { OracleName } from ".";
 
- export interface IApiKeyRow {
-  id: number;
-  key: number;
+export interface IApiKeyRow {
+  id: string;
+  key: string;
   type: OracleName;
-  usage: number;
+  usage: string;
 }

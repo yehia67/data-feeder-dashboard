@@ -1,105 +1,84 @@
-import { getFees, oraclePriceContract, provider } from "@/utils";
 import React from "react";
 
 import { Button, Select, FormControl, FormLabel, Box } from "@chakra-ui/react";
-import {
-  useAccount,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWalletClient,
-} from "wagmi";
 import { OraclePriceArtifacts } from "@/artifacts/OraclePrice";
-import { JsonRpcSigner, parseEther } from "ethers";
+import { parseEther } from "ethers";
+import { getFees } from "@/utils";
+import { prepareWriteContract, writeContract } from "wagmi/actions";
+import axios from "axios";
 
 const OraclePrice = () => {
   const [fees, setFees] = React.useState("0");
   const [fiatCurrency, setFiatCurrency] = React.useState("");
   const [cryptoSymbol, setCryptoSymbol] = React.useState("");
-  const { address } = useAccount();
-  const fiatCurrencyOptions = Object.freeze([
-    "USD",
-    "EUR",
-    "GBP",
-    "JPY",
-    "AUD",
-  ]);
-  const cryptoSymbolOptions = Object.freeze([
-    "BTC",
-    "ETH",
-    "XRP",
-    "LTC",
-    "BCH",
-  ]);
-  const { data: walletClient } = useWalletClient();
+  const [availableFiatCurrency, setAvailableFiatCurrency] = React.useState([]);
+  const [availableCCSymbol, setAvailableCCSymbol] = React.useState([]);
 
-  const { config, error } = usePrepareContractWrite({
-    chainId: 2359,
-    address: OraclePriceArtifacts.address,
-    abi: [
-      OraclePriceArtifacts.abis.find((abi) => abi.name === "requestOracle"),
-    ],
-    args: [fiatCurrency, cryptoSymbol],
-    value: parseEther(fees),
-    account: address,
-    walletClient,
-  });
-  const { write } = useContractWrite(config);
-
-  const handleRequestOracle = () => {
-    if (!address) {
-      return;
-    }
+  const handleRequestOracle = async () => {
+    const { request } = await prepareWriteContract({
+      address: OraclePriceArtifacts.address,
+      abi: OraclePriceArtifacts.abis,
+      functionName: "requestOracle",
+      args: [fiatCurrency, cryptoSymbol],
+      value: parseEther(fees),
+    });
+    await writeContract(request);
   };
+
   React.useEffect(() => {
     const fetchFees = async () => {
-      const currentFees = await getFees("OraclePrice");
+      const [currentFees] = await Promise.all([getFees("OraclePrice")]);
       setFees(currentFees);
+      setAvailableFiatCurrency([]);
+      setAvailableCCSymbol([]);
     };
     fetchFees();
   }, []);
   return (
     <Box
-      borderWidth="1px"
-      borderRadius="lg"
-      overflow="hidden"
-      p="4"
-      boxShadow="md"
       maxW="400px"
       mx="auto"
-      mt="4"
+      mt={4}
+      p={4}
+      borderWidth="1px"
+      borderRadius="lg"
+      boxShadow="md"
     >
-      <FormControl mb="3">
+      <FormControl mb={3}>
         <FormLabel>Fiat Currency</FormLabel>
         <Select
           onChange={(e) => setFiatCurrency(e.target.value)}
           placeholder="Select fiat currency"
         >
-          {fiatCurrencyOptions.map((option) => (
+          {availableFiatCurrency.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
           ))}
         </Select>
       </FormControl>
-      <FormControl mb="3">
+      <FormControl mb={3}>
         <FormLabel>Crypto Symbol</FormLabel>
         <Select
           onChange={(e) => setCryptoSymbol(e.target.value)}
           placeholder="Select crypto symbol"
         >
-          {cryptoSymbolOptions.map((option) => (
+          {availableCCSymbol.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
           ))}
         </Select>
       </FormControl>
-      <Button colorScheme="blue" mb="3" onClick={() => handleRequestOracle()}>
+      <Button
+        colorScheme="blue"
+        mb={3}
+        width="100%"
+        onClick={() => handleRequestOracle()}
+      >
         Request Oracle
       </Button>
-      <Box>
-        <FormLabel>Fee: {fees}TOPOS</FormLabel>
-      </Box>
+      <FormLabel textAlign="center">Fee: {fees} TOPOS</FormLabel>
     </Box>
   );
 };

@@ -12,35 +12,10 @@ import {
   ledgerWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import {
-  mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
-  zora,
-  goerli,
-} from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { useRouter } from "next/router";
-import { defineChain } from "viem";
 import { ChakraProvider } from "@chakra-ui/react";
-
-const toposChain = defineChain({
-  id: 2359,
-  network: "homestead",
-  name: "Topos",
-  nativeCurrency: { name: "Topos", symbol: "TOPOS", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://rpc.topos-subnet.testnet-1.topos.technology"],
-    },
-    public: {
-      http: ["https://rpc.topos-subnet.testnet-1.topos.technology"],
-    },
-  },
-  testnet: true,
-});
+import { toposChain } from "@/config";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [toposChain],

@@ -2,13 +2,23 @@ import React from "react";
 
 import { getFees } from "@/utils";
 import { Button, Input, FormControl, FormLabel, Box } from "@chakra-ui/react";
+import { prepareWriteContract, writeContract } from "wagmi/actions";
+import { OracleFetcherArtifacts } from "@/artifacts/OracleFetcher";
+import { parseEther } from "ethers";
 
 const OracleFetcher = () => {
-  const handleRequestOracle = () => {
-    // Add logic to handle HTTP URL form submission
-    return true;
+  const handleRequestOracle = async () => {
+    const { request } = await prepareWriteContract({
+      address: OracleFetcherArtifacts.address,
+      abi: OracleFetcherArtifacts.abis,
+      functionName: "requestOracle",
+      args: [httpUrl],
+      value: parseEther(fees),
+    });
+    await writeContract(request);
   };
   const [fees, setFees] = React.useState("0");
+  const [httpUrl, setHttpUrl] = React.useState("");
 
   React.useEffect(() => {
     const fetchFees = async () => {
@@ -19,27 +29,32 @@ const OracleFetcher = () => {
   }, []);
   return (
     <Box
-      display="flex"
-      alignItems="center"
-      flexDirection="column"
       maxW="400px"
       mx="auto"
-      mt="4"
-      p="4"
+      mt={4}
+      p={4}
       borderWidth="1px"
       borderRadius="lg"
       boxShadow="lg"
     >
-      <FormControl mb="2">
+      <FormControl mb={2}>
         <FormLabel>HTTP URL</FormLabel>
-        <Input type="text" placeholder="Enter HTTP URL" />
+        <Input
+          type="text"
+          placeholder="Enter HTTP URL"
+          value={httpUrl}
+          onChange={(e) => setHttpUrl(e.target.value)}
+        />
       </FormControl>
-      <Button colorScheme="teal" mb="2">
+      <Button
+        colorScheme="teal"
+        onClick={handleRequestOracle}
+        mb={2}
+        width="100%"
+      >
         Request Oracle
       </Button>
-      <Box>
-        <FormLabel>Fee: {fees}TOPOS</FormLabel>
-      </Box>
+      <FormLabel textAlign="center">Fee: {fees} TOPOS</FormLabel>
     </Box>
   );
 };
