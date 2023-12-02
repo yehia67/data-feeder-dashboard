@@ -14,33 +14,38 @@ export const getAccountDetails = async (
         address: OracleFetcherArtifacts.address,
         abi: OracleFetcherArtifacts.abis,
         functionName: "apiKeyByAddress",
+        args: [address],
       }) as Promise<number>,
       readContract({
         address: OraclePriceArtifacts.address,
         abi: OraclePriceArtifacts.abis,
         functionName: "apiKeyByAddress",
+        args: [address],
       }) as Promise<number>,
       readContract({
         address: OraclePokemonArtifacts.address,
         abi: OraclePokemonArtifacts.abis,
         functionName: "apiKeyByAddress",
+        args: [address],
       }) as Promise<number>,
     ]);
 
   const oracleFetchUsage =
     oracleFetcherKey !== 0
-      ? ((await readContract({
-          address: OracleFetcherArtifacts.address,
-          abi: OracleFetcherArtifacts.abis,
-          functionName: "apiKeyUsage",
-          args: [oracleFetcherKey],
-        })) as number)
-      : 0;
+      ? (
+          (await readContract({
+            address: OracleFetcherArtifacts.address,
+            abi: OracleFetcherArtifacts.abis,
+            functionName: "apiKeyUsage",
+            args: [oracleFetcherKey],
+          })) as number
+        ).toString()
+      : "0";
 
   if (oracleFetcherKey.toString() !== "0") {
     apiRows.push({
-      id: oracleFetchUsage,
-      key: oracleFetcherKey,
+      id: oracleFetcherKey.toString(),
+      key: oracleFetcherKey.toString(),
       usage: oracleFetchUsage,
       type: "OracleFetcher",
     });
@@ -48,18 +53,19 @@ export const getAccountDetails = async (
 
   const oraclePriceUsage =
     oraclePriceKey !== 0
-      ? ((await readContract({
-          address: OraclePriceArtifacts.address,
-          abi: OraclePriceArtifacts.abis,
-          functionName: "apiKeyUsage",
-          args: [oraclePriceKey],
-        })) as number)
-      : 0;
-
+      ? (
+          (await readContract({
+            address: OraclePriceArtifacts.address,
+            abi: OraclePriceArtifacts.abis,
+            functionName: "apiKeyUsage",
+            args: [oraclePriceKey],
+          })) as number
+        ).toString()
+      : "0";
   if (oraclePriceKey.toString() !== "0") {
     apiRows.push({
-      id: oraclePriceKey,
-      key: oraclePriceKey,
+      id: oraclePriceKey.toString(),
+      key: oraclePriceKey.toString(),
       usage: oraclePriceUsage,
       type: "OraclePrice",
     });
@@ -67,18 +73,20 @@ export const getAccountDetails = async (
 
   const oraclePokemonUsage =
     oraclePokemonKey !== 0
-      ? ((await readContract({
-          address: OraclePokemonArtifacts.address,
-          abi: OraclePokemonArtifacts.abis,
-          functionName: "apiKeyUsage",
-          args: [oraclePokemonKey],
-        })) as number)
-      : 0;
+      ? (
+          (await readContract({
+            address: OraclePokemonArtifacts.address,
+            abi: OraclePokemonArtifacts.abis,
+            functionName: "apiKeyUsage",
+            args: [oraclePokemonKey],
+          })) as number
+        ).toString()
+      : "0";
 
   if (oraclePokemonUsage.toString() !== "0") {
     apiRows.push({
-      id: oraclePokemonKey,
-      key: oraclePokemonKey,
+      id: oraclePokemonKey.toString(),
+      key: oraclePokemonKey.toString(),
       usage: oraclePokemonUsage,
       type: "OracleNFT",
     });
