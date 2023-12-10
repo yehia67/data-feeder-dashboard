@@ -6,3 +6,8 @@ export interface IApiKeyRow {
   type: OracleName;
   usage: string;
 }
+
+export interface PopupsProps {
+  openPopup: () => void;
+  closePopup: () => void;
+}

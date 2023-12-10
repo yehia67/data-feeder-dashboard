@@ -5,17 +5,24 @@ import { Button, Input, FormControl, FormLabel, Box } from "@chakra-ui/react";
 import { prepareWriteContract, writeContract } from "wagmi/actions";
 import { OracleFetcherArtifacts } from "@/artifacts/OracleFetcher";
 import { parseEther } from "ethers";
+import { PopupsProps } from "@/interfaces";
 
-const OracleFetcher = () => {
+const OracleFetcher = ({ openPopup }: PopupsProps) => {
   const handleRequestOracle = async () => {
-    const { request } = await prepareWriteContract({
-      address: OracleFetcherArtifacts.address,
-      abi: OracleFetcherArtifacts.abis,
-      functionName: "requestOracle",
-      args: [httpUrl],
-      value: parseEther(fees),
-    });
-    await writeContract(request);
+    try {
+      const { request } = await prepareWriteContract({
+        address: OracleFetcherArtifacts.address,
+        abi: OracleFetcherArtifacts.abis,
+        functionName: "requestOracle",
+        args: [httpUrl],
+        value: parseEther(fees),
+      });
+      await writeContract(request);
+    } catch (error) {
+      if (JSON.stringify(error).includes("Unauthorized")) {
+        openPopup();
+      }
+    }
   };
   const [fees, setFees] = React.useState("0");
   const [httpUrl, setHttpUrl] = React.useState("");
