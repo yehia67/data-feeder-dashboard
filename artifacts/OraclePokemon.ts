@@ -5,6 +5,25 @@ export const OraclePokemonArtifacts = Object.freeze({
   abis: [
     ...BaseOracle.abis,
     {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "id",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "caller",
+          type: "address",
+        },
+      ],
+      name: "OracleRequested",
+      type: "event",
+    },
+    {
       inputs: [],
       name: "requestOracle",
       outputs: [
