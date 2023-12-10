@@ -4,17 +4,24 @@ import { getFees } from "@/utils";
 import { parseEther } from "ethers";
 import { prepareWriteContract, writeContract } from "wagmi/actions";
 import { OraclePokemonArtifacts } from "@/artifacts/OraclePokemon";
+import { PopupsProps } from "@/interfaces";
 
-const OracleNftMinter: React.FC = () => {
+const OracleNftMinter = ({ openPopup }: PopupsProps) => {
   const handleMintPokemonNFT = async () => {
-    const { request } = await prepareWriteContract({
-      address: OraclePokemonArtifacts.address,
-      abi: OraclePokemonArtifacts.abis,
-      functionName: "requestOracle",
-      args: [],
-      value: parseEther(fees),
-    });
-    await writeContract(request);
+    try {
+      const { request } = await prepareWriteContract({
+        address: OraclePokemonArtifacts.address,
+        abi: OraclePokemonArtifacts.abis,
+        functionName: "requestOracle",
+        args: [],
+        value: parseEther(fees),
+      });
+      await writeContract(request);
+    } catch (error) {
+      if (JSON.stringify(error).includes("Unauthorized")) {
+        openPopup();
+      }
+    }
   };
   const [fees, setFees] = React.useState("0");
 

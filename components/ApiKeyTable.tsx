@@ -17,7 +17,6 @@ const ApiKeyTable = () => {
   // Sample data, replace this with your actual data
   const [apiKeys, setApiKeys] = React.useState<IApiKeyRow[]>([]);
   const [msg, setMsg] = React.useState<string>("Connecting..");
-
   const { address, isReconnecting } = useAccount();
 
   // Use a variable to store the message
@@ -32,30 +31,13 @@ const ApiKeyTable = () => {
       const currentApiKeys = await getAccountDetails(address);
       if (!currentApiKeys.length) {
         setMsg("You are not subscribed to any oracle...");
+        setApiKeys([]);
+      } else {
+        setApiKeys(currentApiKeys);
       }
-      setApiKeys(currentApiKeys);
     };
     setApiInfo();
   }, [address, isReconnecting]);
-
-  // Conditionally set the tableContent variable
-  if (apiKeys.length) {
-    tableContent = apiKeys.map((apiKey) => (
-      <Tr key={apiKey.id}>
-        <Td>{apiKey.key}</Td>
-        <Td>{apiKey.type}</Td>
-        <Td>{apiKey.usage}</Td>
-      </Tr>
-    ));
-  } else {
-    tableContent = (
-      <Tr>
-        <Td colSpan={3} textAlign="center">
-          {msg}
-        </Td>
-      </Tr>
-    );
-  }
 
   return (
     <Container mt={8}>
@@ -70,7 +52,23 @@ const ApiKeyTable = () => {
             <Th>Usage</Th>
           </Tr>
         </Thead>
-        <Tbody>{tableContent}</Tbody>
+        <Tbody>
+          {apiKeys.length ? (
+            apiKeys.map((apiKey, index) => (
+              <Tr key={`${apiKey.id} - ${index}`}>
+                <Td>{apiKey.key}</Td>
+                <Td>{apiKey.type}</Td>
+                <Td>{apiKey.usage}</Td>
+              </Tr>
+            ))
+          ) : (
+            <Tr>
+              <Td colSpan={3} textAlign="center">
+                {msg}
+              </Td>
+            </Tr>
+          )}
+        </Tbody>
       </Table>
     </Container>
   );

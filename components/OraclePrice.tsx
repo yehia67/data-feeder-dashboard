@@ -6,8 +6,9 @@ import { parseEther } from "ethers";
 import { getFees } from "@/utils";
 import { prepareWriteContract, writeContract } from "wagmi/actions";
 import axios from "axios";
+import { PopupsProps } from "@/interfaces";
 
-const OraclePrice = () => {
+const OraclePrice = ({ openPopup }: PopupsProps) => {
   const [fees, setFees] = React.useState("0");
   const [fiatCurrency, setFiatCurrency] = React.useState("");
   const [cryptoSymbol, setCryptoSymbol] = React.useState("");
@@ -15,22 +16,37 @@ const OraclePrice = () => {
   const [availableCCSymbol, setAvailableCCSymbol] = React.useState([]);
 
   const handleRequestOracle = async () => {
-    const { request } = await prepareWriteContract({
-      address: OraclePriceArtifacts.address,
-      abi: OraclePriceArtifacts.abis,
-      functionName: "requestOracle",
-      args: [fiatCurrency, cryptoSymbol],
-      value: parseEther(fees),
-    });
-    await writeContract(request);
+    try {
+      const { request } = await prepareWriteContract({
+        address: OraclePriceArtifacts.address,
+        abi: OraclePriceArtifacts.abis,
+        functionName: "requestOracle",
+        args: [fiatCurrency, cryptoSymbol],
+        value: parseEther(fees),
+      });
+      await writeContract(request);
+    } catch (error) {
+      if (JSON.stringify(error).includes("Unauthorized")) {
+        openPopup();
+      }
+    }
   };
 
   React.useEffect(() => {
     const fetchFees = async () => {
-      const [currentFees] = await Promise.all([getFees("OraclePrice")]);
+      const [currentFees, fiatCurrencyOptions, cryptoSymbolOptions] =
+        await Promise.all([
+          getFees("OraclePrice"),
+          axios.get(
+            "https://api.coingecko.com/api/v3/simple/supported_vs_currencies"
+          ),
+          axios.get("https://api.coingecko.com/api/v3/coins/list"),
+        ]);
       setFees(currentFees);
-      setAvailableFiatCurrency([]);
-      setAvailableCCSymbol([]);
+      setAvailableFiatCurrency(fiatCurrencyOptions.data);
+      setAvailableCCSymbol(
+        cryptoSymbolOptions.data.map((coin: { id: string }) => coin.id)
+      );
     };
     fetchFees();
   }, []);
@@ -45,7 +61,7 @@ const OraclePrice = () => {
       boxShadow="md"
     >
       <FormControl mb={3}>
-        <FormLabel>Fiat Currency</FormLabel>
+        <FormLabel>Currency</FormLabel>
         <Select
           onChange={(e) => setFiatCurrency(e.target.value)}
           placeholder="Select fiat currency"
