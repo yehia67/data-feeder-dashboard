@@ -92,6 +92,5 @@ export const getAccountDetails = async (
     });
   }
 
-  console.log({ apiRows });
   return apiRows;
 };
