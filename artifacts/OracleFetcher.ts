@@ -5,6 +5,31 @@ export const OracleFetcherArtifacts = Object.freeze({
   abis: [
     ...BaseOracle.abis,
     {
+      type: "event",
+      name: "OracleRequested",
+      inputs: [
+        {
+          name: "id",
+          type: "uint256",
+          indexed: true,
+          internalType: "uint256",
+        },
+        {
+          name: "caller",
+          type: "address",
+          indexed: true,
+          internalType: "address",
+        },
+        {
+          name: "url",
+          type: "string",
+          indexed: false,
+          internalType: "string",
+        },
+      ],
+      anonymous: false,
+    },
+    {
       inputs: [
         {
           internalType: "string",
